@@ -1,0 +1,19 @@
+[project]
+name = "ocelloids-client"
+version = "0.1.0"
+description = "Ocelloids client library"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.32.3",
+    "websockets>=15.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "dotenv>=0.9.9",
+    "ruff>=0.11.0",
+    "textual>=2.1.2",
+    "textual-dev>=1.7.0",
+    "textual-plotext>=1.0.1",
+]
