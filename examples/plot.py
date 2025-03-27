@@ -23,7 +23,10 @@ from textual_plotext import PlotextPlot
 
 load_dotenv()
 
-new_blocks = {"agent": "chainspy", "args": {"networks": ["urn:ocn:polkadot:0"]}}
+new_blocks = {
+    "agent": "chainspy",
+    "args": {"networks": ["urn:ocn:polkadot:0", "urn:ocn:polkadot:2034"]},
+}
 
 
 class Blocks(PlotextPlot):
@@ -31,9 +34,10 @@ class Blocks(PlotextPlot):
 
     marker: var[str] = var("braille")
 
-    def __init__(self, title: str, **kwargs) -> None:
+    def __init__(self, title: str, color: str, **kwargs) -> None:
         super().__init__(**kwargs)
         self._title = title
+        self._color = color
         self._data: list[int] = []  # Stores transaction counts
         self._time: list[str] = []  # Stores timestamps
         self.watch(self.app, "theme", lambda: self.call_after_refresh(self.replot))
@@ -50,9 +54,8 @@ class Blocks(PlotextPlot):
             self._time,
             self._data,
             marker=self.marker,
-            width=0.75,
             fill=True,
-            color="green",
+            color=self._color,
         )
         self.refresh()
 
@@ -74,7 +77,7 @@ class BlocksApp(App[None]):
 
     CSS = """
     Grid {
-        grid-size: 1;
+        grid-size: 2;
     }
     """
 
@@ -95,7 +98,12 @@ class BlocksApp(App[None]):
     def compose(self) -> ComposeResult:
         yield Header()
         with Grid():
-            yield Blocks("Polkadot - Extrinsics per Block", id="blocks")
+            yield Blocks(
+                "Polkadot - Extrinsics per Block", id="blocks-polkadot", color="red"
+            )
+            yield Blocks(
+                "Hydration - Extrinsics per Block", id="blocks-hydration", color="blue"
+            )
         yield Footer()
 
     async def on_mount(self) -> None:
@@ -137,9 +145,13 @@ class BlocksApp(App[None]):
         timestamp = datetime.fromtimestamp(metadata["timestamp"] / 1000).strftime(
             "%Y-%m-%d %H:%M:%S"
         )
+        network = metadata["networkId"]
         transactions = len(payload.get("extrinsics", []))
 
-        self.query_one("#blocks", Blocks).update(timestamp, transactions)
+        if network == "urn:ocn:polkadot:0":
+            self.query_one("#blocks-polkadot", Blocks).update(timestamp, transactions)
+        elif network == "urn:ocn:polkadot:2034":
+            self.query_one("#blocks-hydration", Blocks).update(timestamp, transactions)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import json
 from requests import get
+from websockets import ConnectionClosedError
 from websockets.asyncio.client import connect as wsconn
 
 API_WS_URL = "wss://api.ocelloids.net"
@@ -43,11 +44,14 @@ class Ocelloids:
     async def subscribe(self, subscription: dict, on_message: callable):
         def a(subscription: dict, on_message: callable):
             async def b(ws):
-                await ws.send(json.dumps(subscription))
-                # Subscription OK
-                await ws.recv()
-                async for message in ws:
-                    on_message(json.loads(message))
+                try:
+                    await ws.send(json.dumps(subscription))
+                    await ws.recv()  # subscription ack
+                    async for message in ws:
+                        on_message(json.loads(message))
+                except ConnectionClosedError as e:
+                    # TODO: handle errors
+                    raise e
 
             return b
 

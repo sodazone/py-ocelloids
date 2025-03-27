@@ -11,11 +11,14 @@ from client.ocelloids import Ocelloids
 
 load_dotenv()
 
-sub = {"agent": "chainspy", "args": {"networks": ["urn:ocn:polkadot:0"]}}
+sub = {
+    "agent": "chainspy",
+    "args": {"networks": ["urn:ocn:polkadot:0", "urn:ocn:polkadot:2034"]},
+}
 
 
 def on_message(message):
-    print(f">> {message}")
+    print(f">> {message['metadata']}")
 
 
 async def run():
