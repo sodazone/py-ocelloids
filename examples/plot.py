@@ -109,7 +109,7 @@ class BlocksApp(App[None]):
     class BlockData(Message):
         data: dict[str, Any]
 
-    @work(exclusive=True, group="gather-blocks")
+    @work(exclusive=True)
     async def gather_blocks(self) -> None:
         """Subscribe to block data updates."""
 
@@ -128,7 +128,6 @@ class BlocksApp(App[None]):
             )
 
     @on(BlockData)
-    @work(exclusive=True, thread=True)
     def update_plot(self, event: BlockData) -> None:
         """Update the plot with new block data."""
         data = event.data
