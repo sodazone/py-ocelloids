@@ -18,7 +18,7 @@ sub = {
 
 
 def on_message(message):
-    print(f">> {message['metadata']}")
+    print(f">> [{message['payload']['status']}] {message['metadata']}")
 
 
 async def run():
